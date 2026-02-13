@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CAN I ASK YOU SOMETHING?</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<style>
+:root{
+  --bg1:#e6d9ff;
+  --bg2:#f3ecff;
+  --card:rgba(200,170,255,0.35);
+  --yes:#ff3b7a;
+  --yesHover:#ff1f68;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  background:radial-gradient(circle at top,var(--bg2),var(--bg1));
+  font-family:system-ui,sans-serif;
+  overflow:hidden;
+}
+
+#confettiCanvas{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* Card */
+.card{
+  position:relative;
+  width:min(720px,92vw);
+  padding:26px 22px;
+  background:var(--card);
+  backdrop-filter:blur(18px);
+  border-radius:22px;
+  text-align:center;
+  box-shadow:0 18px 60px rgba(120,80,200,.35);
+  overflow:hidden;
+}
+
+/* Petals */
+.petals{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:0;
+}
+
+.petal{
+  position:absolute;
+  top:-40px;
+  width:22px;
+  height:22px;
+  background:url("https://pngimg.com/uploads/lily/lily_PNG18.png") no-repeat center/contain;
+  animation:fall linear infinite;
+  opacity:.9;
+}
+
+@keyframes fall{
+  0%{transform:translateY(-40px) rotate(0deg);}
+  100%{transform:translateY(120%) rotate(360deg);}
+}
+
+/* Teddy & Hug style */
+.art{
+  width:min(260px,80vw);
+  margin:0 auto 10px;
+  display:block;
+  border-radius:18px;
+  box-shadow:0 10px 20px rgba(0,0,0,.15);
+  position:relative;
+  z-index:1;
+}
+
+h1{
+  font-size:clamp(26px,4vw,44px);
+  margin:12px 0 18px;
+  color:#4b2ca3;
+  position:relative;
+  z-index:1;
+}
+
+.button-zone{
+  position:relative;
+  width:min(520px,92%);
+  height:150px;
+  margin:0 auto;
+  z-index:1;
+}
+
+button{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  padding:16px 24px;
+  font-size:18px;
+  font-weight:800;
+  border-radius:999px;
+  border:none;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(0,0,0,.14);
+}
+
+@keyframes pulseLove{
+  0%{transform:translateY(-50%) scale(1);}
+  50%{transform:translateY(-50%) scale(1.12);}
+  100%{transform:translateY(-50%) scale(1);}
+}
+
+#yesBtn{
+  left:18%;
+  background:var(--yes);
+  color:#fff;
+  animation:pulseLove 1.2s infinite;
+}
+
+#yesBtn:hover{background:var(--yesHover);}
+
+#noBtn{
+  left:62%;
+  background:#ddd6fe;
+}
+
+.hint{
+  margin-top:10px;
+  font-size:13px;
+  opacity:.7;
+  position:relative;
+  z-index:1;
+}
+
+.result{
+  display:none;
+  margin-top:18px;
+  animation:pop .35s ease;
+  position:relative;
+  z-index:1;
+}
+
+.love-text{
+  margin-top:14px;
+  font-size:16px;
+  line-height:1.6;
+  color:#4b2ca3;
+  padding:0 8px;
+}
+
+@keyframes pop{
+  from{transform:scale(.96);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="confettiCanvas"></canvas>
+
+<audio id="bgMusic" loop>
+  <source src="https://pagalfree.com/musics/128-Darkhaast%20-%20Shivaay%20128%20Kbps.mp3" type="audio/mpeg">
+</audio>
+
+<main class="card">
+
+  <div class="petals" id="petals"></div>
+
+  <!-- Teddy first -->
+  <img id="teddyGif" class="art"
+  src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3azBtaDdoMmVob2FycDlhZWFtc2l2MTI0YjhjcTRndnRxMGIxbmcwYiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/mRvzQIDr0gHCz82SV0/giphy.gif" />
+
+  <!-- Hug hidden -->
+  <img id="hugGif" class="art" style="display:none;"
+  src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3d2NsdnAzbnE5OTZ2aDFhdHgwNDJnOW9maWVmOG9weWtnbzYzeHhjciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Vuunvce2Kvvs9sE3y6/giphy.gif" />
+
+  <h1 id="mainTitle">WILL YOU BE MY "SUSHI"👉👈?</h1>
+
+  <section class="button-zone" id="zone">
+    <button id="yesBtn">Yes</button>
+    <button id="noBtn">No</button>
+  </section>
+
+  <div class="hint" id="hint">"No" 🥹</div>
+
+  <section class="result" id="result">
+    <h2>HEYYY🥹</h2>
+
+    <p class="love-text">
+      There may be lots of guys better than me, better looking, better at talking, better in every way.
+      So if you ever find someone better than me and aise kuch bhi nhi hai obviously , but just tell me please…  
+      Not so I can say “talk to him then,” but so I can learn how to become that better for you & only for you I do.  
+      You’re my happy place Bubu💗🧿 "My 7 minutes" aur mujhe yahi rehna hai tere paas and positively tu direct mujhe bta what's goin on with you 
+      that's all i have to say.
+    </p>
+  </section>
+
+</main>
+
+<script>
+const petalsContainer=document.getElementById("petals");
+for(let i=0;i<20;i++){
+  const p=document.createElement("div");
+  p.className="petal";
+  p.style.left=Math.random()*100+"%";
+  p.style.animationDuration=(5+Math.random()*5)+"s";
+  p.style.opacity=Math.random();
+  petalsContainer.appendChild(p);
+}
+
+const zone=document.getElementById("zone");
+const yesBtn=document.getElementById("yesBtn");
+const noBtn=document.getElementById("noBtn");
+const result=document.getElementById("result");
+const hint=document.getElementById("hint");
+const music=document.getElementById("bgMusic");
+const confettiCanvas=document.getElementById("confettiCanvas");
+
+const teddyGif=document.getElementById("teddyGif");
+const hugGif=document.getElementById("hugGif");
+const mainTitle=document.getElementById("mainTitle");
+
+function resizeCanvas(){
+  const dpr=Math.max(1,window.devicePixelRatio||1);
+  confettiCanvas.width=window.innerWidth*dpr;
+  confettiCanvas.height=window.innerHeight*dpr;
+}
+resizeCanvas();
+window.addEventListener("resize",resizeCanvas);
+
+const confettiInstance=confetti.create(confettiCanvas,{resize:false,useWorker:true});
+
+function fullConfetti(){
+  const end=Date.now()+1600;
+  (function frame(){
+    confettiInstance({
+      particleCount:12,
+      spread:90,
+      startVelocity:45,
+      origin:{x:Math.random(),y:Math.random()*0.3}
+    });
+    if(Date.now()<end)requestAnimationFrame(frame);
+  })();
+
+  setTimeout(()=>{
+    confettiInstance({
+      particleCount:300,
+      spread:140,
+      startVelocity:60,
+      origin:{x:0.5,y:0.55}
+    });
+  },300);
+}
+
+function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+
+function moveNo(px,py){
+  const z=zone.getBoundingClientRect();
+  const b=noBtn.getBoundingClientRect();
+
+  let dx=(b.left+b.width/2)-px;
+  let dy=(b.top+b.height/2)-py;
+  let mag=Math.hypot(dx,dy)||1;
+  dx/=mag; dy/=mag;
+
+  let newLeft=(b.left-z.left)+dx*150;
+  let newTop=(b.top-z.top)+dy*150;
+
+  newLeft=clamp(newLeft,0,z.width-b.width);
+  newTop=clamp(newTop,0,z.height-b.height);
+
+  noBtn.style.left=newLeft+"px";
+  noBtn.style.top=newTop+"px";
+  noBtn.style.transform="none";
+}
+
+zone.addEventListener("pointermove",e=>{
+  const b=noBtn.getBoundingClientRect();
+  const d=Math.hypot((b.left+b.width/2)-e.clientX,(b.top+b.height/2)-e.clientY);
+  if(d<140)moveNo(e.clientX,e.clientY);
+});
+
+noBtn.addEventListener("click",e=>e.preventDefault());
+
+yesBtn.addEventListener("click",()=>{
+  zone.style.display="none";
+  hint.style.display="none";
+
+  mainTitle.textContent="From this Moment... it's just US🧿♾️";
+
+  teddyGif.style.display="none";
+  hugGif.style.display="block";
+
+  result.style.display="block";
+
+  music.currentTime=145;
+  music.play();
+
+  resizeCanvas();
+  fullConfetti();
+});
+</script>
+
+</body>
+</html>
